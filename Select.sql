@@ -1,4 +1,3 @@
---Количество исполнителей в каждом жанре
 select genre_name, count(id_artist) from Genres 
 join Artists_Genres on Genres.id_genre = Artists_Genres.id_genre
 group by genre_name
@@ -15,20 +14,22 @@ group by album_name
 
 --Все исполнители, которые не выпустили альбомы в 2020 году
 select artist_name from Artists 
+where artist_name not in (
+            select artist_name from Artists
 join Artists_Album on Artists.id_artist = Artists_Album.id_artist 
 join Albums on Albums.id_album = Artists_Album.id_album 
-where album_release_year not between '20200101' and '20201231' 
-group by artist_name
+where album_release_year >= '20200101' and album_release_year <= '20201231'
+);
 
---Названия сборников, в которых присутствует конкретный исполнитель (выбрана Taylor Swift)
+--Названия сборников, в которых присутствует конкретный исполнитель 
 select collection_title from Collections
 join Collection_Tracks on Collection_Tracks.id_collection = Collections.id_collection
 join Tracks on Collection_Tracks.id_track = Tracks.id_track
 join Albums on Tracks.id_album = Albums.id_album
 join Artists_Album on Artists_Album.id_album = Albums.id_album
 join Artists on Artists_Album.id_artist = Artists.id_artist
-where artist_name = 'Taylor Swift'
-group by collection_title
+where artist_name iLIKE '%%Michael%%';
+
 
 --Название альбомов, в которых присутствуют исполнители более 1 жанра
 select album_name, count(genre_name) from Albums 
@@ -70,3 +71,14 @@ where Tracks.id_album in (
          limit 1
 )
 )
+
+
+SELECT Albums.Title Albums, COUNT(Track.Title) Track_count FROM Albums "не понимаю вот эту констуркцию"
+left join Tracks on Tracks.id_album = Albums.id_album
+GROUP BY Album.Title
+HAVING COUNT(Tracks.Title) = (  
+	SELECT COUNT(Tracks.Title) FROM Albums
+	JOIN Track ON Albums.Id = Track.AlbumId
+	GROUP BY Album.Title
+	ORDER BY COUNT(Tracks.Title)
+	LIMIT 1);
